@@ -1,34 +1,29 @@
-
-
 <script>
 import axios from 'axios'
 let reAlpha = /^[a-z]+$/i
-//let citySearchResults = document.getElementById('citySearchResults')
 export default {
     
     name: 'Searchbar',
     data() {
-       return {
-           countries: null,
-           cities: null,
-           citySearchResults: document.getElementById('citySearchResults')
+        return {
+            countries: null,
+            cities: null,
+            cityResults: null,
+            countryResults: null
            
-       }
+        }
     },
-    // mounted() {
-        
-    //   axios.post('http://127.0.0.1:3000/searchcountry')
-    //     .then((response) => {
-    //         this.info = response;
-    //     }) 
-    // },
+    mounted() {
+        this.cityResults = this.$refs.cityResults,
+        this.countryResults = this.$refs.countryResults
+    },
     methods: {
 
-        async searchCountry(input) {
-            
-            // only query database for alpa chars
-            if(reAlpha.test(input.value)) {
-                let countryInput = input.value
+        async searchCountry(event, input) {
+        
+            // only query database for alpa chars and backspace
+            if(reAlpha.test(event.key) || event.keyCode === 8) {
+                
                 
                 let response = await axios({
                     method: 'post',
@@ -47,11 +42,23 @@ export default {
             };
             return;
         },
-        async searchCity(input) {
+        async searchCity(event, cityInput, countryInput) {
             
-            // only query database for alpa chars
-            if(reAlpha.test(input.value)) {
-                let searchData = JSON.stringify({city : input.value, country: searchCountryTextInput.value})
+            // Here I'd like to remove previous search results if field is blank
+                // but for some reason afterwards the search results do not want to
+                // render to the dom as normal. The database queries continue (see in console).
+
+            // if(cityInput.value.length < 1) {
+            //     this.clearList(this.cityResults)
+            //     cityInput.value = ""
+            //     return
+            // }
+
+
+            // only query database for alpa chars, backspace, or spacebar
+            if(reAlpha.test(event.key)  || event.keyCode === 8 || event.keyCode === 32) {
+        
+                let searchData = JSON.stringify({city : cityInput.value, country: countryInput.value})
                 let response = await axios({
                     method: 'post',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -72,21 +79,15 @@ export default {
             searchCountryTextInput.value = value
         },
         clearList(list) {
-            
-            if(list.childElementCount > 0) {
-                let first = list.firstElementChild;
-                while(first) {
-                    first.remove();
-                    first = list.firstElementChild;
-                }
+            while (list.firstChild) {
+                list.removeChild(list.firstChild)
             }
+            
         }
-        
-
-        
     }
 }
 </script>
+
 
 <template>
     <div class="formWrapper">
@@ -94,30 +95,36 @@ export default {
 
             <div class="formInputWrapper">
                 <button id="currLocationBtn"><span class="material-icons">my_location</span></button>
-                <input @keyup="searchCity(this.$refs.searchCityInput)" ref="searchCityInput" type="text" name="searchCityTextInput" id="searchCityTextInput" placeholder="Search City" autocomplete="off" required>
-                <input @keyup="searchCountry(this.$refs.searchCountryInput); clearList(this.$refs.cityResults)" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
+                <!-- the first two @keypress prevent form submission on 'enter' -->
+                <input @keypress.enter="$event.preventDefault()" @keyup="searchCity($event, this.$refs.searchCityInput, this.$refs.searchCountryInput)" ref="searchCityInput" type="text" name="searchCityTextInput" id="searchCityTextInput" placeholder="Search City" autocomplete="off" required>
+                <input @keypress.enter="$event.preventDefault()" @keyup="searchCountry($event, this.$refs.searchCountryInput); clearList(this.$refs.cityResults)" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
             </div>
             
             <div class="searchResultsWrapperMain">
                 <div class="searchResultsWrapper">
+
                     <ul ref="cityResults" id=citySearchResults>
                         <li @click="clearList(this.$refs.cityResults)" v-for="city in cities">
+                            <!-- display state name only in US -->
                             <text v-if="city['country'] == 'US'">{{ city['name'] + ", " + city['state'] + ", " + city['country']}}</text>
                             <text v-else>{{ city['name'] + ", " + city['country']}}</text>
                         </li>
                     </ul>
 
                     <ul ref="countryResults" id="countrySearchResults">
+
                         <li @click="setCountry(country['country']); clearList(this.$refs.countryResults)" v-for="country in countries">
                             {{ country['country'] }}
                         </li>
                     </ul>
+
                 </div>
             </div>
 
         </form>
     </div>
 </template>
+
 
 <style>
 .formWrapper {

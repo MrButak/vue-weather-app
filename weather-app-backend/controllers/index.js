@@ -9,6 +9,7 @@ exports.searchCity = (req, res, next) => {
 
     data = Object.keys(req.body)
     data = JSON.parse(data)
+    
     let cities = locations.searchByName(data.city, data.country);
     res.status(200).json(cities)
 };
