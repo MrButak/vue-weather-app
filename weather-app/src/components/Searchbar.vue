@@ -5,9 +5,9 @@
             <div class="formInputWrapper">
                 <button id="currLocationBtn"><span class="material-icons">my_location</span></button>
                 <input type="text" name="searchCityTextInput" id="searchCityTextInput" placeholder="Search City" autocomplete="off" required>
-                <input type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
+                <input @keyup="queryCountry()" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
             </div>
-
+            
             <div class="searchResultsWrapperMain">
                 <div class="searchResultsWrapper">
                     <ul id=citySearchResults></ul>
@@ -20,9 +20,37 @@
 </template>
 
 <script>
+import {queryCity, queryCountry} from "/home/mspence5555/git-repositories/vue-weather-app/weather-app-backend/public/javascripts/jsmodules/querylocations.js";
+import axios from 'axios'
 export default {
-  name: 'Searchbar',
+    
+    name: 'Searchbar',
+    data() {
+      
+    },
+    // mounted() {
+        
+    //   axios.post('http://127.0.0.1:3000/searchcountry')
+    //     .then((response) => {
+    //         this.info = response;
+    //     }) 
+    // },
+    methods: {
 
+        queryCountry() {
+            console.log(searchCountryTextInput.value)
+            axios({
+            method: 'post',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            url: 'http://127.0.0.1:3000/searchcountry',
+            
+            data: searchCountryTextInput.value
+            })
+            .then(function (response) {
+                console.log(response.data, "its here");
+            });
+        }
+    }
 }
 </script>
 

@@ -12,7 +12,12 @@ exports.searchCity = (req, res, next) => {
 };
 
 exports.searchCountry = (req, res, next) => {
-
-    let countries = locations.searchByCountry(req.body.searchCountry);
+    
+    let country = Object.keys(req.body)
+    country = country[0];
+    
+    let countries = locations.searchByCountry(country);
+    
     res.status(200).json(countries)  
 };
+
