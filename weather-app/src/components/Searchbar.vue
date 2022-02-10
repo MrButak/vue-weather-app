@@ -1,3 +1,54 @@
+
+
+<script>
+import axios from 'axios'
+let reAlpha = /^[a-z]+$/i
+let countrySearchResults = document.getElementById('countrySearchResults')
+export default {
+    
+    name: 'Searchbar',
+    data() {
+       return {
+           countries: null
+       }
+    },
+    // mounted() {
+        
+    //   axios.post('http://127.0.0.1:3000/searchcountry')
+    //     .then((response) => {
+    //         this.info = response;
+    //     }) 
+    // },
+    methods: {
+
+        async queryCountry() {
+            
+            // only query database for alpa chars
+            if(reAlpha.test(searchCountryTextInput.value)) {
+
+                let response = await axios({
+                    method: 'post',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    url: 'http://127.0.0.1:3000/searchcountry',
+                    data: searchCountryTextInput.value
+                })
+                
+                .then((response) => {
+                    console.log(response.data)
+                    
+                    this.countries = response.data;
+                    return this.countries
+                });
+            };
+            return;
+        },
+        setCountry(value) {
+            searchCountryTextInput.value = value
+        }
+    }
+}
+</script>
+
 <template>
     <div class="formWrapper">
         <form method="POST" action="/searchcity" id="searchCityForm">
@@ -10,50 +61,23 @@
             
             <div class="searchResultsWrapperMain">
                 <div class="searchResultsWrapper">
-                    <ul id=citySearchResults></ul>
-                    <ul id="countrySearchResults"></ul>
+                    <ul id=citySearchResults>
+                        <li>
+
+                        </li>
+                    </ul>
+
+                    <ul id="countrySearchResults">
+                        <li @click="setCountry(country['country'])" v-for="country in countries">
+                            {{ country['country'] }}
+                        </li>
+                    </ul>
                 </div>
             </div>
 
         </form>
     </div>
 </template>
-
-<script>
-import {queryCity, queryCountry} from "/home/mspence5555/git-repositories/vue-weather-app/weather-app-backend/public/javascripts/jsmodules/querylocations.js";
-import axios from 'axios'
-export default {
-    
-    name: 'Searchbar',
-    data() {
-      
-    },
-    // mounted() {
-        
-    //   axios.post('http://127.0.0.1:3000/searchcountry')
-    //     .then((response) => {
-    //         this.info = response;
-    //     }) 
-    // },
-    methods: {
-
-        queryCountry() {
-            console.log(searchCountryTextInput.value)
-            axios({
-            method: 'post',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            url: 'http://127.0.0.1:3000/searchcountry',
-            
-            data: searchCountryTextInput.value
-            })
-            .then(function (response) {
-                console.log(response.data, "its here");
-            });
-        }
-    }
-}
-</script>
-
 
 <style>
 .formWrapper {
