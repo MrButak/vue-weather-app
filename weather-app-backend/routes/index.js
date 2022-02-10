@@ -17,7 +17,7 @@ const allowRequest = app.use(function(req, res, next) {
 router.get('/', index.index);
 
 // POST route for city search
-router.post('/searchcity', index.searchCity);
+router.post('/searchcity', allowRequest, index.searchCity);
 
 // POST route for country search
 router.post('/searchcountry', allowRequest, index.searchCountry);
