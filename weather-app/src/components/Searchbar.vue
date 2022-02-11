@@ -19,7 +19,9 @@ export default {
             currentTemp: null,
             weatherImageUrl: null,
             errorMessage: null,
-            tempBtn: null
+            tempBtn: null,
+            country: null,
+            state: null
             
         }
     },
@@ -61,7 +63,7 @@ export default {
                 this.cityShow = false
                 return
             }
-
+            // show city search results div
             this.cityShow = true
             // only query database for alpa chars, backspace, or spacebar
             if(reAlpha.test(event.key)  || event.keyCode === 8 || event.keyCode === 32) {
@@ -86,11 +88,19 @@ export default {
 
         setCountry(value) {
             searchCountryTextInput.value = value
+
+            // clear search city text input and hide city search results
+            this.cityShow = false
+            this.$refs.searchCityInput.value = ""
+            
         },
         
         async fetchApi(event, cityData) {
+
             
-            
+            // clear search city text input
+            this.$refs.searchCityInput.value = ""
+
             let cityId = cityData.cityid;
             
             // api call
@@ -102,20 +112,18 @@ export default {
                 this.errorMessage = data.message;
                 return;
             };
-            
-            // TODO clear city search text input
-
-
-            return(this.displayWeatherData(weatherData))
+            return(this.displayWeatherData(weatherData, cityData))
         },
 
-        displayWeatherData(weatherData) {
+        displayWeatherData(weatherData, cityData) {
 
             // show weather data div
             this.weatherShow = true
 
             this.kelvin = weatherData.main.temp
             this.cityName = weatherData.name
+            this.state = cityData.state
+            this.country = cityData.country
             this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`
             this.convertTemp(this.kelvin)
             console.log(weatherData)
@@ -165,7 +173,7 @@ export default {
                 </ul>
 
                 <ul v-show="countryShow" ref="countryResults" id="countrySearchResults">
-                    <li @click="setCountry(country['country']); this.cityShow = true; this.countryShow = false" v-for="country in countries">
+                    <li @click="setCountry(country['country']); this.countryShow = false" v-for="country in countries">
                         {{ country['country'] }}
                     </li>
                 </ul>
@@ -178,7 +186,7 @@ export default {
 
     <div v-show="weatherShow" class="dataWrapperMain">
         <div id="dataWrapper">
-            <p id="cityName">{{ cityName }}</p>
+            <p id="cityName">{{ cityName }}, {{ state }} {{ country }}</p>
             <img :src="weatherImageUrl" id="weatherImg">
             <p id=currentTemp>{{ currentTemp }}</p>
             <button @click="convertTemp(this.kelvin)" id="tempUnitBtn">{{ tempBtn }}</button>
