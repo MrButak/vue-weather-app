@@ -43,17 +43,6 @@ export default {
             return;
         },
         async searchCity(event, cityInput, countryInput) {
-            
-            // Here I'd like to remove previous search results if field is blank
-                // but for some reason afterwards the search results do not want to
-                // render to the dom as normal. The database queries continue (see in console).
-
-            // if(cityInput.value.length < 1) {
-            //     this.clearList(this.cityResults)
-            //     cityInput.value = ""
-            //     return
-            // }
-
 
             // only query database for alpa chars, backspace, or spacebar
             if(reAlpha.test(event.key)  || event.keyCode === 8 || event.keyCode === 32) {
@@ -83,6 +72,26 @@ export default {
                 list.removeChild(list.firstChild)
             }
             
+        },
+        async fetchApi(event, cityData) {
+            
+            let cityId = cityData.cityid;
+            
+            // api call
+            let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+            let weatherData = await response.json();
+            
+            // handle errors
+            if(!response.ok) {
+                errorMessage.textContent = data.message;
+                dataWrapper.style.display = "";
+                searchCityTextInput.value = "";
+                // TODO send error message to DOM
+                return;
+            };
+            
+            // TODO clear city search text input
+            return(displayWeatherData(weatherData))
         }
     }
 }
@@ -91,37 +100,32 @@ export default {
 
 <template>
     <div class="formWrapper">
-        <form method="POST" action="/searchcity" id="searchCityForm">
+        
+        <div class="formInputWrapper">
+            <button id="currLocationBtn"><span class="material-icons">my_location</span></button>
+            <input @keyup="searchCity($event, this.$refs.searchCityInput, this.$refs.searchCountryInput)" ref="searchCityInput" type="text" name="searchCityTextInput" id="searchCityTextInput" placeholder="Search City" autocomplete="off" required>
+            <input @keyup="searchCountry($event, this.$refs.searchCountryInput)" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
+        </div>
+        
+        <div class="searchResultsWrapperMain">
+            <div class="searchResultsWrapper">
 
-            <div class="formInputWrapper">
-                <button id="currLocationBtn"><span class="material-icons">my_location</span></button>
-                <!-- the first two @keypress prevent form submission on 'enter' -->
-                <input @keypress.enter="$event.preventDefault()" @keyup="searchCity($event, this.$refs.searchCityInput, this.$refs.searchCountryInput)" ref="searchCityInput" type="text" name="searchCityTextInput" id="searchCityTextInput" placeholder="Search City" autocomplete="off" required>
-                <input @keypress.enter="$event.preventDefault()" @keyup="searchCountry($event, this.$refs.searchCountryInput); clearList(this.$refs.cityResults)" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
+                <ul ref="cityResults" id=citySearchResults>
+                    <li @click="fetchApi($event, city)" v-for="city in cities">
+                        <!-- display state name only in US cities -->
+                        <span v-if="city['country'] == 'US'">{{ city['name'] + ", " + city['state'] + ", " + city['country']}}</span>
+                        <span v-else>{{ city['name'] + ", " + city['country']}}</span>
+                    </li>
+                </ul>
+
+                <ul ref="countryResults" id="countrySearchResults">
+                    <li @click="setCountry(country['country'])" v-for="country in countries">
+                        {{ country['country'] }}
+                    </li>
+                </ul>
+
             </div>
-            
-            <div class="searchResultsWrapperMain">
-                <div class="searchResultsWrapper">
-
-                    <ul ref="cityResults" id=citySearchResults>
-                        <li @click="clearList(this.$refs.cityResults)" v-for="city in cities">
-                            <!-- display state name only in US -->
-                            <text v-if="city['country'] == 'US'">{{ city['name'] + ", " + city['state'] + ", " + city['country']}}</text>
-                            <text v-else>{{ city['name'] + ", " + city['country']}}</text>
-                        </li>
-                    </ul>
-
-                    <ul ref="countryResults" id="countrySearchResults">
-
-                        <li @click="setCountry(country['country']); clearList(this.$refs.countryResults)" v-for="country in countries">
-                            {{ country['country'] }}
-                        </li>
-                    </ul>
-
-                </div>
-            </div>
-
-        </form>
+        </div>
     </div>
 </template>
 

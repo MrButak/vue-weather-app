@@ -4,7 +4,7 @@ var app = express();
 const index = require('../controllers/index')
 
 
-// Allow requests from vue front end
+// allow requests from vue front end
 const allowRequest = app.use(function(req, res, next) {
     
     res.header("Access-Control-Allow-Origin", "*");

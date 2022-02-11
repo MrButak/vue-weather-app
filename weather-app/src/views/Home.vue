@@ -22,9 +22,9 @@ export default {
   },
   data() {
       
-      return {
-          info: null
-      }
+    //   return {
+    //       info: null
+    //   }
   }
 //   mounted() {
 
