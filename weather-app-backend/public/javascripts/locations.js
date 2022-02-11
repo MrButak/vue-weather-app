@@ -3,7 +3,6 @@ const Database = require('better-sqlite3');
 // Query DB for city and country
 exports.searchByName = (cityName, countryName) => {
 
-	
     let db = new Database('citylist.db', {verbose: console.log});
 
 	try {

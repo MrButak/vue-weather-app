@@ -1,6 +1,7 @@
 <script>
 import axios from 'axios'
 let reAlpha = /^[a-z]+$/i
+
 export default {
     
     name: 'Searchbar',
@@ -8,19 +9,27 @@ export default {
         return {
             countries: null,
             cities: null,
-            cityResults: null,
-            countryResults: null
-           
+            cityShow: true,
+            countryShow: true,
+            weatherShow: false,
+            fahrenheit: false,
+            kelvin: null,
+            // dom
+            cityName: null,
+            currentTemp: null,
+            weatherImageUrl: null,
+            errorMessage: null,
+            tempBtn: null
+            
         }
     },
-    mounted() {
-        this.cityResults = this.$refs.cityResults,
-        this.countryResults = this.$refs.countryResults
-    },
+    
     methods: {
 
         async searchCountry(event, input) {
-        
+            
+            // hide weather data div
+            this.weatherShow = false
             // only query database for alpa chars and backspace
             if(reAlpha.test(event.key) || event.keyCode === 8) {
                 
@@ -42,8 +51,18 @@ export default {
             };
             return;
         },
+
         async searchCity(event, cityInput, countryInput) {
 
+            // hide weather data div
+            this.weatherShow = false
+            // if search input has no value hide search results
+            if(cityInput.value.length < 1) {
+                this.cityShow = false
+                return
+            }
+
+            this.cityShow = true
             // only query database for alpa chars, backspace, or spacebar
             if(reAlpha.test(event.key)  || event.keyCode === 8 || event.keyCode === 32) {
         
@@ -64,16 +83,13 @@ export default {
             };
             return;
         },
+
         setCountry(value) {
             searchCountryTextInput.value = value
         },
-        clearList(list) {
-            while (list.firstChild) {
-                list.removeChild(list.firstChild)
-            }
-            
-        },
+        
         async fetchApi(event, cityData) {
+            
             
             let cityId = cityData.cityid;
             
@@ -83,15 +99,44 @@ export default {
             
             // handle errors
             if(!response.ok) {
-                errorMessage.textContent = data.message;
-                dataWrapper.style.display = "";
-                searchCityTextInput.value = "";
-                // TODO send error message to DOM
+                this.errorMessage = data.message;
                 return;
             };
             
             // TODO clear city search text input
-            return(displayWeatherData(weatherData))
+
+
+            return(this.displayWeatherData(weatherData))
+        },
+
+        displayWeatherData(weatherData) {
+
+            // show weather data div
+            this.weatherShow = true
+
+            this.kelvin = weatherData.main.temp
+            this.cityName = weatherData.name
+            this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`
+            this.convertTemp(this.kelvin)
+            console.log(weatherData)
+        },
+
+        convertTemp(kelvin) {
+            
+            switch(this.fahrenheit) {
+                // for celcius
+                case true:
+                    this.fahrenheit = false
+                    this.tempBtn = "°C"
+                    this.currentTemp = Math.round(kelvin - 273.15) + " °C"
+                    return
+                // for fahrenheit
+                case false:
+                    this.fahrenheit = true
+                    this.tempBtn = "°F"
+                    this.currentTemp = Math.round((kelvin - 273.15) * 1.8 + 32) + " °F"
+                    return
+            }
         }
     }
 }
@@ -99,27 +144,28 @@ export default {
 
 
 <template>
+
     <div class="formWrapper">
         
         <div class="formInputWrapper">
             <button id="currLocationBtn"><span class="material-icons">my_location</span></button>
             <input @keyup="searchCity($event, this.$refs.searchCityInput, this.$refs.searchCountryInput)" ref="searchCityInput" type="text" name="searchCityTextInput" id="searchCityTextInput" placeholder="Search City" autocomplete="off" required>
-            <input @keyup="searchCountry($event, this.$refs.searchCountryInput)" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
+            <input @keyup="searchCountry($event, this.$refs.searchCountryInput); this.cityShow = false; this.countryShow = true" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
         </div>
         
         <div class="searchResultsWrapperMain">
             <div class="searchResultsWrapper">
 
-                <ul ref="cityResults" id=citySearchResults>
-                    <li @click="fetchApi($event, city)" v-for="city in cities">
+                <ul v-show="cityShow" ref="cityResults" id=citySearchResults>
+                    <li @click="fetchApi($event, city); this.cityShow = false" v-for="city in cities">
                         <!-- display state name only in US cities -->
-                        <span v-if="city['country'] == 'US'">{{ city['name'] + ", " + city['state'] + ", " + city['country']}}</span>
+                        <span v-if="city['country'] == 'US'">{{ city['name'] + ", " + city['state']}}</span>
                         <span v-else>{{ city['name'] + ", " + city['country']}}</span>
                     </li>
                 </ul>
 
-                <ul ref="countryResults" id="countrySearchResults">
-                    <li @click="setCountry(country['country'])" v-for="country in countries">
+                <ul v-show="countryShow" ref="countryResults" id="countrySearchResults">
+                    <li @click="setCountry(country['country']); this.cityShow = true; this.countryShow = false" v-for="country in countries">
                         {{ country['country'] }}
                     </li>
                 </ul>
@@ -127,6 +173,18 @@ export default {
             </div>
         </div>
     </div>
+
+    <p id="errorMessage" style="text-align: center;">{{  errorMessage }}</p>
+
+    <div v-show="weatherShow" class="dataWrapperMain">
+        <div id="dataWrapper">
+            <p id="cityName">{{ cityName }}</p>
+            <img :src="weatherImageUrl" id="weatherImg">
+            <p id=currentTemp>{{ currentTemp }}</p>
+            <button @click="convertTemp(this.kelvin)" id="tempUnitBtn">{{ tempBtn }}</button>
+        </div>
+    </div>
+    
 </template>
 
 
@@ -189,6 +247,7 @@ li {
 li:hover {
     background-color: #A6F6F1;
 }
+
 /* weather results */
 .dataWrapperMain {
     display: flex;
@@ -199,9 +258,13 @@ li:hover {
     padding-top: 30px;
 }
 #dataWrapper {
-    display: none;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+#tempUnitBtn {
+    background-color: #41AEA9;
+    color: white;
 }
 </style>
