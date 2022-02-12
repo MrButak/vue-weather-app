@@ -17,6 +17,8 @@ export default {
             // dom
             cityName: null,
             currentTemp: null,
+            maxTemp: null,
+            minTemp: null,
             weatherImageUrl: null,
             errorMessage: null,
             tempBtn: null,
@@ -116,16 +118,22 @@ export default {
         },
 
         displayWeatherData(weatherData, cityData) {
-
+            
             // show weather data div
             this.weatherShow = true
-
+            // default display in fahrenheit
+            this.fahrenheit = false
             this.kelvin = weatherData.main.temp
+            this.minTemp = weatherData.main.temp_min 
+            this.maxTemp = weatherData.main.temp_max
             this.cityName = weatherData.name
             this.state = cityData.state
             this.country = cityData.country
             this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`
+            
+
             this.convertTemp(this.kelvin)
+            
             console.log(weatherData)
         },
 
@@ -188,8 +196,9 @@ export default {
         <div id="dataWrapper">
             <p id="cityName">{{ cityName }}, {{ state }} {{ country }}</p>
             <img :src="weatherImageUrl" id="weatherImg">
+            <text>Current Temp</text>
             <p id=currentTemp>{{ currentTemp }}</p>
-
+            <p>High {{ maxTemp }} / Low {{ minTemp }}</p>
             <label class="switch">
                 <input @click="convertTemp(this.kelvin)" type="checkbox">
                 <span class="slider round"></span>
@@ -244,16 +253,18 @@ export default {
 #citySearchResults , #countrySearchResults {
     padding: 0;
     list-style: none;
+
 }
 .searchResultsWrapperMain {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 .searchResultsWrapper {
-    /* border: 1px solid black; */
+    /*border: 1px solid black;*/
     background-color: #E8FFFF;
-    width: 89.5%;
+    width: auto;
 }
 li {
     transition: ease-in-out;
@@ -277,12 +288,10 @@ li:hover {
     justify-content: center;
     align-items: center;
 }
-#tempUnitBtn {
-    background-color: #41AEA9;
-    color: white;
-}
+
 /* start button slider switch*/ 
 
+/* The switch - the box around the slider */
 /* The switch - the box around the slider */
 .switch {
   position: relative;
@@ -298,7 +307,7 @@ li:hover {
   height: 0;
 }
 
-/* Button slider */
+/* The slider */
 .slider {
   position: absolute;
   cursor: pointer;
@@ -306,7 +315,7 @@ li:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ddd;
+  background-color: #41AEA9;
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -318,17 +327,17 @@ li:hover {
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: #FABB51;
+  background-color:#41AEA9;
   -webkit-transition: .4s;
   transition: .4s;
 }
 
 input:checked + .slider {
-  background-color: #ddd;
+  background-color: #41AEA9;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #ddd;
+  box-shadow: 0 0 1px #41AEA9;
 }
 
 input:checked + .slider:before {
@@ -344,6 +353,7 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+  background-color: #E8FFFF;
 }
 /* end button slider switch*/ 
 </style>
