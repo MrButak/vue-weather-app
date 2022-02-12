@@ -32,10 +32,10 @@ export default {
         async searchCountry(event, input) {
             
             // hide weather data div
-            this.weatherShow = false
+            this.weatherShow = false;
+
             // only query database for alpa chars and backspace
             if(reAlpha.test(event.key) || event.keyCode === 8) {
-                
                 
                 let response = await axios({
                     method: 'post',
@@ -43,13 +43,12 @@ export default {
                     url: 'http://127.0.0.1:3000/searchcountry',
                     data: input.value
                      
-                })
+                });
                 
                 .then((response) => {
-                    console.log(response.data)
-                    
+           
                     this.countries = response.data;
-                    return this.countries
+                    return this.countries;
                 });
             };
             return;
@@ -58,41 +57,43 @@ export default {
         async searchCity(event, cityInput, countryInput) {
 
             // hide weather data div
-            this.weatherShow = false
+            this.weatherShow = false;
+
             // if search input has no value hide search results
             if(cityInput.value.length < 1) {
-                this.cityShow = false
-                return
-            }
+                this.cityShow = false;
+                return;
+            };
+
             // show city search results div
-            this.cityShow = true
+            this.cityShow = true;
+
             // only query database for alpa chars, backspace, or spacebar
             if(reAlpha.test(event.key)  || event.keyCode === 8 || event.keyCode === 32) {
         
-                let searchData = JSON.stringify({city : cityInput.value, country: countryInput.value})
+                let searchData = JSON.stringify({city : cityInput.value, country: countryInput.value});
                 let response = await axios({
                     method: 'post',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     url: 'http://127.0.0.1:3000/searchcity',
                     data: searchData
-                })
+                });
                 
                 .then((response) => {
-                    console.log(response.data)
-                    
+            
                     this.cities = response.data;
-                    return this.cities
+                    return this.cities;
                 });
             };
             return;
         },
 
         setCountry(value) {
-            searchCountryTextInput.value = value
+            searchCountryTextInput.value = value;
 
             // clear search city text input and hide city search results
-            this.cityShow = false
-            this.$refs.searchCityInput.value = ""
+            this.cityShow = false;
+            this.$refs.searchCityInput.value = "";
             
         },
         
@@ -100,7 +101,7 @@ export default {
 
             
             // clear search city text input
-            this.$refs.searchCityInput.value = ""
+            this.$refs.searchCityInput.value = "";
 
             // api call
             let response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${cityData.lat}&lon=${cityData.lon}&units=imperial&exclude=minutely,hourly&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
@@ -114,27 +115,24 @@ export default {
                 this.errorMessage = data.message;
                 return;
             };
-            return(this.displayWeatherData(weatherData, cityData))
+            return(this.displayWeatherData(weatherData, cityData));
         },
 
         displayWeatherData(weatherData, cityData) {
             
             // show weather data div
-            this.weatherShow = true
+            this.weatherShow = true;
 
             // default temp unit in fahrenheit
-            this.currentTemp = Math.round(weatherData.current.temp)
-            this.minTemp = Math.round(weatherData.daily[0].temp.min)
-            this.maxTemp = Math.round(weatherData.daily[0].temp.max)
-            this.tempSymbol = "°F"
-
-            // if using current location there will be no cityData
-            if(cityData) {
-                this.cityName = cityData.name;
-                this.state = cityData.state;
-                this.country = cityData.country
-            };
-
+            this.currentTemp = Math.round(weatherData.current.temp);
+            this.minTemp = Math.round(weatherData.daily[0].temp.min);
+            this.maxTemp = Math.round(weatherData.daily[0].temp.max);
+            this.tempSymbol = "°F";
+        
+            this.cityName = cityData.name;
+            this.state = cityData.state;
+            this.country = cityData.country;
+            
             // get weather image
             this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@2x.png`
         },
@@ -144,29 +142,29 @@ export default {
             switch(this.fahrenheit) {
                 // for celcius
                 case true:
-                    this.fahrenheit = false
-                    this.tempSymbol = "°C"
+                    this.fahrenheit = false;
+                    this.tempSymbol = "°C";
                     this.currentTemp = Math.round((cTemp - 32) * .556);
                     this.minTemp = Math.round((miTemp - 32) * .556);
                     this.maxTemp = Math.round((mxTemp - 32) * .556);
-                    return
+                    return;
                 // for fahrenheit
                 case false:
-                    this.fahrenheit = true
-                    this.tempSymbol = "°F"
+                    this.fahrenheit = true;
+                    this.tempSymbol = "°F";
                     this.currentTemp = Math.round(cTemp * 1.8 + 32);
                     this.minTemp = Math.round(miTemp * 1.8 + 32);
                     this.maxTemp = Math.round(mxTemp * 1.8 + 32);
-                    return
-            }
+                    return;
+            };
         },
 
         getCurrentLocation() {
 
             navigator.geolocation.getCurrentPosition((position) => {
-                console.log(position)
-                this.fetchApiCurrentLocation(position)
-            })
+    
+                this.fetchApiCurrentLocation(position);
+            });
         },
 
         async fetchApiCurrentLocation(position) {
