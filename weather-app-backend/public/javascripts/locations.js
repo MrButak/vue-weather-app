@@ -9,12 +9,12 @@ exports.searchByName = (cityName, countryName) => {
 		let statement = db.prepare('SELECT * FROM cities WHERE name LIKE (?) AND country = (?) LIMIT 30');
 		let city = statement.all(cityName + "%", countryName);
 		db.close();
-        // console.log(city, "here the db")
 		return city;
 	}
     catch (e) {
 		console.log(e);
 	};
+    
 };
 
 // Query DB for countries

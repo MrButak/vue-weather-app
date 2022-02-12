@@ -19,20 +19,6 @@ export default {
     Header,
     Searchbar,
     Footer
-  },
-  data() {
-      
-    //   return {
-    //       info: null
-    //   }
   }
-//   mounted() {
-
-//       axios.get('http://127.0.0.1:3000/searchcountry')
-//         .then((response) => {
-//             this.info = response;
-//         }) 
-//   }
-  
 }
 </script>

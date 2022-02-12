@@ -3,6 +3,7 @@
 </template>
 
 <style>
+/*TODO: set padding-top to footer height*/
 * {
     box-sizing: border-box;
     margin: 0px;

@@ -12,13 +12,13 @@ export default {
             cityShow: true,
             countryShow: true,
             weatherShow: false,
-            fahrenheit: false,
-            kelvin: null,
+            fahrenheit: true,
             // dom
             cityName: null,
             currentTemp: null,
             maxTemp: null,
             minTemp: null,
+            tempSymbol: null,
             weatherImageUrl: null,
             errorMessage: null,
             tempBtn: null,
@@ -106,7 +106,7 @@ export default {
             let cityId = cityData.cityid;
             
             // api call
-            let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+            let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?id=${cityId}&units=imperial&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
             let weatherData = await response.json();
             
             // handle errors
@@ -118,12 +118,13 @@ export default {
         },
 
         displayWeatherData(weatherData, cityData) {
-            console.log(weatherData)
+            
             // show weather data div
             this.weatherShow = true
-            // default display in fahrenheit
-            this.fahrenheit = false
-            this.kelvin = weatherData.main.temp
+            
+            // console.log(weatherData)
+            // console.log("here ^^^^^^^^^^^^^^")
+            
             this.minTemp = weatherData.main.temp_min 
             this.maxTemp = weatherData.main.temp_max
             this.cityName = weatherData.name
@@ -131,29 +132,29 @@ export default {
             // if using current location there will be no cityData
             if(cityData) {this.state = cityData.state}
 
+            // get weather image
             this.country = weatherData.sys.country
             this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`
             
-
-            this.convertTemp(this.kelvin)
-            
-            
+            // default temp unit in fahrenheit
+            this.currentTemp = Math.round(weatherData.main.temp)
+            this.tempSymbol = "°F"
         },
 
-        convertTemp(kelvin) {
+        convertTemp(temp) {
             
             switch(this.fahrenheit) {
                 // for celcius
                 case true:
                     this.fahrenheit = false
-                    this.tempBtn = "°C"
-                    this.currentTemp = Math.round(kelvin - 273.15) + " °C"
+                    this.tempSymbol = "°C"
+                    this.currentTemp = Math.round((temp - 32) * .556)
                     return
                 // for fahrenheit
                 case false:
                     this.fahrenheit = true
-                    this.tempBtn = "°F"
-                    this.currentTemp = Math.round((kelvin - 273.15) * 1.8 + 32) + " °F"
+                    this.tempSymbol = "°F"
+                    this.currentTemp = Math.round(temp * 1.8 + 32)
                     return
             }
         },
@@ -166,14 +167,15 @@ export default {
         },
 
         async fetchApiCurrentLocation(position) {
-            let response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+        
+            let response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&units=imperial&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
             let weatherData = await response.json();
             
             if(!response.ok) {
                 this.errorMessage = data.message;
                 return;
             };
-            
+        
             // not receiving the state name from api call, so set to null
             this.state = null;
 
@@ -222,10 +224,10 @@ export default {
             <p id="cityName">{{ cityName }} {{ state }} {{ country }}</p>
             <img :src="weatherImageUrl" id="weatherImg">
             <text>Current Temp</text>
-            <p id=currentTemp>{{ currentTemp }}</p>
+            <p id=currentTemp>{{ currentTemp }} {{ tempSymbol }}</p>
             <p>High {{ maxTemp }} / Low {{ minTemp }}</p>
             <label class="switch">
-                <input @click="convertTemp(this.kelvin)" type="checkbox">
+                <input @click="convertTemp(this.currentTemp)" type="checkbox">
                 <span class="slider round"></span>
             </label>
 
