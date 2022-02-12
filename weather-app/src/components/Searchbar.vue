@@ -153,6 +153,27 @@ export default {
                     this.currentTemp = Math.round((kelvin - 273.15) * 1.8 + 32) + " °F"
                     return
             }
+        },
+
+        getCurrentLocation() {
+
+            navigator.geolocation.getCurrentPosition((position) => {
+                
+                this.fetchApiCurrentLocation(position)
+            })
+            
+            
+        },
+
+        async fetchApiCurrentLocation(position) {
+            let response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+            let weatherData = await response.json();
+            
+            if(!response.ok) {
+                this.errorMessage = data.message;
+                return;
+            };
+            return(this.displayWeatherData(weatherData));
         }
     }
 }
@@ -164,7 +185,7 @@ export default {
     <div class="formWrapper">
         
         <div class="formInputWrapper">
-            <button id="currLocationBtn"><span class="material-icons">my_location</span></button>
+            <button @click="getCurrentLocation" id="currLocationBtn"><span class="material-icons">my_location</span></button>
             <input @keyup="searchCity($event, this.$refs.searchCityInput, this.$refs.searchCountryInput)" ref="searchCityInput" type="text" name="searchCityTextInput" id="searchCityTextInput" placeholder="Search City" autocomplete="off" required>
             <input @keyup="searchCountry($event, this.$refs.searchCountryInput); this.cityShow = false; this.countryShow = true" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
         </div>
