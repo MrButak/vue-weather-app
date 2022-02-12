@@ -21,7 +21,6 @@ export default {
             tempSymbol: null,
             weatherImageUrl: null,
             errorMessage: null,
-            tempBtn: null,
             country: null,
             state: null
             
@@ -103,15 +102,12 @@ export default {
             // clear search city text input
             this.$refs.searchCityInput.value = ""
 
-            // let cityId = cityData.cityid;
-            
             // api call
-            // https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
             let response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${cityData.lat}&lon=${cityData.lon}&units=imperial&exclude=minutely,hourly&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
             let weatherData = await response.json();
             
-            console.table(weatherData)
-            console.log("here ^^^^^^^^^^^^^^")
+            // console.table(weatherData)
+            // console.log("here ^^^^^^^^^^^^^^")
 
             // handle errors
             if(!response.ok) {
@@ -128,39 +124,39 @@ export default {
 
             // default temp unit in fahrenheit
             this.currentTemp = Math.round(weatherData.current.temp)
-            this.tempSymbol = "°F"
-
             this.minTemp = Math.round(weatherData.daily[0].temp.min)
             this.maxTemp = Math.round(weatherData.daily[0].temp.max)
-            
+            this.tempSymbol = "°F"
 
             // if using current location there will be no cityData
             if(cityData) {
-                this.state = cityData.state;
                 this.cityName = cityData.name;
+                this.state = cityData.state;
                 this.country = cityData.country
             };
 
             // get weather image
             this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@2x.png`
-            
-            
         },
 
-        convertTemp(temp) {
+        convertTemp(cTemp, miTemp, mxTemp) {
             
             switch(this.fahrenheit) {
                 // for celcius
                 case true:
                     this.fahrenheit = false
                     this.tempSymbol = "°C"
-                    this.currentTemp = Math.round((temp - 32) * .556)
+                    this.currentTemp = Math.round((cTemp - 32) * .556);
+                    this.minTemp = Math.round((miTemp - 32) * .556);
+                    this.maxTemp = Math.round((mxTemp - 32) * .556);
                     return
                 // for fahrenheit
                 case false:
                     this.fahrenheit = true
                     this.tempSymbol = "°F"
-                    this.currentTemp = Math.round(temp * 1.8 + 32)
+                    this.currentTemp = Math.round(cTemp * 1.8 + 32);
+                    this.minTemp = Math.round(miTemp * 1.8 + 32);
+                    this.maxTemp = Math.round(mxTemp * 1.8 + 32);
                     return
             }
         },
@@ -168,24 +164,41 @@ export default {
         getCurrentLocation() {
 
             navigator.geolocation.getCurrentPosition((position) => {
+                console.log(position)
                 this.fetchApiCurrentLocation(position)
             })
         },
 
         async fetchApiCurrentLocation(position) {
-        
-            let response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&units=imperial&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
-            let weatherData = await response.json();
             
+            // position only provides lat, lon, so this api call gets information located in cityInfo below
+            // api call for general info on lat, lon
+            let response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&units=imperial&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+            let weatherInfo = await response.json();
+
             if(!response.ok) {
                 this.errorMessage = data.message;
                 return;
             };
-        
-            // not receiving the state name from api call, so set to null
-            this.state = null;
 
-            return(this.displayWeatherData(weatherData));
+            let cityInfo = {
+                            name: weatherInfo.name,
+                            country: weatherInfo.sys.country,
+                            state: null,
+                            lat: weatherInfo.coord.lat,
+                            lon: weatherInfo.coord.lon
+                            };
+
+            // api call for weather info
+            let responseTwo = await fetch(`http://api.openweathermap.org/data/2.5/onecall?lat=${cityInfo.lat}&lon=${cityInfo.lon}&units=imperial&exclude=minutely,hourly&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+            let weatherData = await responseTwo.json();
+
+            if(!responseTwo.ok) {
+                this.errorMessage = data.message;
+                return;
+            };
+
+            return(this.displayWeatherData(weatherData, cityInfo));
         }
     }
 }
@@ -231,9 +244,9 @@ export default {
             <img :src="weatherImageUrl" id="weatherImg">
             <text>Current Temp</text>
             <p id=currentTemp>{{ currentTemp }} {{ tempSymbol }}</p>
-            <p>High {{ maxTemp }} / Low {{ minTemp }}</p>
+            <p>High {{ maxTemp }} {{ tempSymbol }} / Low {{ minTemp }} {{ tempSymbol }}</p>
             <label class="switch">
-                <input @click="convertTemp(this.currentTemp)" type="checkbox">
+                <input @click="convertTemp(this.currentTemp, this.minTemp, this.maxTemp)" type="checkbox">
                 <span class="slider round"></span>
             </label>
 
