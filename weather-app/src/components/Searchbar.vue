@@ -118,7 +118,7 @@ export default {
         },
 
         displayWeatherData(weatherData, cityData) {
-            
+            console.log(weatherData)
             // show weather data div
             this.weatherShow = true
             // default display in fahrenheit
@@ -127,14 +127,17 @@ export default {
             this.minTemp = weatherData.main.temp_min 
             this.maxTemp = weatherData.main.temp_max
             this.cityName = weatherData.name
-            this.state = cityData.state
-            this.country = cityData.country
+
+            // if using current location there will be no cityData
+            if(cityData) {this.state = cityData.state}
+
+            this.country = weatherData.sys.country
             this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`
             
 
             this.convertTemp(this.kelvin)
             
-            console.log(weatherData)
+            
         },
 
         convertTemp(kelvin) {
@@ -158,11 +161,8 @@ export default {
         getCurrentLocation() {
 
             navigator.geolocation.getCurrentPosition((position) => {
-                
                 this.fetchApiCurrentLocation(position)
             })
-            
-            
         },
 
         async fetchApiCurrentLocation(position) {
@@ -173,6 +173,10 @@ export default {
                 this.errorMessage = data.message;
                 return;
             };
+            
+            // not receiving the state name from api call, so set to null
+            this.state = null;
+
             return(this.displayWeatherData(weatherData));
         }
     }
@@ -215,7 +219,7 @@ export default {
 
     <div v-show="weatherShow" class="dataWrapperMain">
         <div id="dataWrapper">
-            <p id="cityName">{{ cityName }}, {{ state }} {{ country }}</p>
+            <p id="cityName">{{ cityName }} {{ state }} {{ country }}</p>
             <img :src="weatherImageUrl" id="weatherImg">
             <text>Current Temp</text>
             <p id=currentTemp>{{ currentTemp }}</p>
