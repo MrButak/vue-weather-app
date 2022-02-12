@@ -103,12 +103,16 @@ export default {
             // clear search city text input
             this.$refs.searchCityInput.value = ""
 
-            let cityId = cityData.cityid;
+            // let cityId = cityData.cityid;
             
             // api call
-            let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?id=${cityId}&units=imperial&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+            // https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
+            let response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${cityData.lat}&lon=${cityData.lon}&units=imperial&exclude=minutely,hourly&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
             let weatherData = await response.json();
             
+            console.table(weatherData)
+            console.log("here ^^^^^^^^^^^^^^")
+
             // handle errors
             if(!response.ok) {
                 this.errorMessage = data.message;
@@ -121,24 +125,26 @@ export default {
             
             // show weather data div
             this.weatherShow = true
+
+            // default temp unit in fahrenheit
+            this.currentTemp = Math.round(weatherData.current.temp)
+            this.tempSymbol = "°F"
+
+            this.minTemp = Math.round(weatherData.daily[0].temp.min)
+            this.maxTemp = Math.round(weatherData.daily[0].temp.max)
             
-            // console.log(weatherData)
-            // console.log("here ^^^^^^^^^^^^^^")
-            
-            this.minTemp = weatherData.main.temp_min 
-            this.maxTemp = weatherData.main.temp_max
-            this.cityName = weatherData.name
 
             // if using current location there will be no cityData
-            if(cityData) {this.state = cityData.state}
+            if(cityData) {
+                this.state = cityData.state;
+                this.cityName = cityData.name;
+                this.country = cityData.country
+            };
 
             // get weather image
-            this.country = weatherData.sys.country
-            this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`
+            this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@2x.png`
             
-            // default temp unit in fahrenheit
-            this.currentTemp = Math.round(weatherData.main.temp)
-            this.tempSymbol = "°F"
+            
         },
 
         convertTemp(temp) {
