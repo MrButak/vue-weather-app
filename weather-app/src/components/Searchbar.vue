@@ -13,7 +13,7 @@ export default {
             countryShow: true,
             weatherShow: false,
             fahrenheit: true,
-            // dom
+            // dom variables
             cityName: null,
             currentTemp: null,
             maxTemp: null,
@@ -31,8 +31,10 @@ export default {
 
         async searchCountry(event, input) {
             
-            // hide weather data div
+            // hide weather data and search city div
             this.weatherShow = false;
+            this.cityShow = false; 
+            this.countryShow = true;
 
             // only query database for alpa chars and backspace
             if(reAlpha.test(event.key) || event.keyCode === 8) {
@@ -41,9 +43,8 @@ export default {
                     method: 'post',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     url: 'http://127.0.0.1:3000/searchcountry',
-                    data: input.value
-                     
-                });
+                    data: input.value  
+                })
                 
                 .then((response) => {
            
@@ -77,7 +78,7 @@ export default {
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     url: 'http://127.0.0.1:3000/searchcity',
                     data: searchData
-                });
+                })
                 
                 .then((response) => {
             
@@ -108,7 +109,6 @@ export default {
             let weatherData = await response.json();
             
             // console.table(weatherData)
-            // console.log("here ^^^^^^^^^^^^^^")
 
             // handle errors
             if(!response.ok) {
@@ -169,7 +169,7 @@ export default {
 
         async fetchApiCurrentLocation(position) {
             
-            // position only provides lat, lon, so this api call gets information located in cityInfo below
+            // js Geolocation Api only provides lat, lon, so this api call gets information located in cityInfo below
             // api call for general info on lat, lon
             let response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&units=imperial&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
             let weatherInfo = await response.json();
@@ -179,13 +179,14 @@ export default {
                 return;
             };
 
+            // store location information
             let cityInfo = {
                             name: weatherInfo.name,
                             country: weatherInfo.sys.country,
                             state: null,
                             lat: weatherInfo.coord.lat,
                             lon: weatherInfo.coord.lon
-                            };
+            };
 
             // api call for weather info
             let responseTwo = await fetch(`http://api.openweathermap.org/data/2.5/onecall?lat=${cityInfo.lat}&lon=${cityInfo.lon}&units=imperial&exclude=minutely,hourly&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
@@ -199,7 +200,7 @@ export default {
             return(this.displayWeatherData(weatherData, cityInfo));
         }
     }
-}
+};
 </script>
 
 
@@ -210,7 +211,7 @@ export default {
         <div class="formInputWrapper">
             <button @click="getCurrentLocation" id="currLocationBtn"><span class="material-icons">my_location</span></button>
             <input @keyup="searchCity($event, this.$refs.searchCityInput, this.$refs.searchCountryInput)" ref="searchCityInput" type="text" name="searchCityTextInput" id="searchCityTextInput" placeholder="Search City" autocomplete="off" required>
-            <input @keyup="searchCountry($event, this.$refs.searchCountryInput); this.cityShow = false; this.countryShow = true" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
+            <input @keyup="searchCountry($event, this.$refs.searchCountryInput)" ref="searchCountryInput" type="text" name="searchCountryTextInput" id="searchCountryTextInput" placeholder="US" maxlength="2" size="1" value="US" autocomplete="off" required>
         </div>
         
         <div class="searchResultsWrapperMain">
@@ -247,8 +248,6 @@ export default {
                 <input @click="convertTemp(this.currentTemp, this.minTemp, this.maxTemp)" type="checkbox">
                 <span class="slider round"></span>
             </label>
-
-        
         </div>
     </div>
     
@@ -256,6 +255,7 @@ export default {
 
 
 <style>
+/*start search form*/
 .formWrapper {
     display: flex;
     flex-direction: column;
@@ -306,7 +306,6 @@ export default {
     width: 100%;
 }
 .searchResultsWrapper {
-    /*border: 1px solid black;*/
     background-color: #E8FFFF;
     width: auto;
 }
@@ -316,8 +315,9 @@ li {
 li:hover {
     background-color: #A6F6F1;
 }
+/*end search form*/
 
-/* weather results */
+/* start weather results */
 .dataWrapperMain {
     display: flex;
     flex-direction: column;
@@ -332,10 +332,9 @@ li:hover {
     justify-content: center;
     align-items: center;
 }
+/* end weather results */
 
 /* start button slider switch*/ 
-
-/* The switch - the box around the slider */
 /* The switch - the box around the slider */
 .switch {
   position: relative;
@@ -390,7 +389,6 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 
-/* Rounded sliders */
 .slider.round {
   border-radius: 34px;
 }
