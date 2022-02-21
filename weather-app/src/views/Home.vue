@@ -8,6 +8,7 @@
 
 <script>
 // @ is an alias to /src
+import axios from 'axios'
 import Header from '@/components/Header.vue'
 import Searchbar from '@/components/Searchbar.vue'
 import Footer from '@/components/Footer.vue'
