@@ -95,6 +95,9 @@ export default {
         
         async fetchApi(event, cityData) {
 
+            // default temp unit in farenheit
+            this.fahrenheit = true;
+            
             // clear search city text input
             this.$refs.searchCityInput.value = "";
 
