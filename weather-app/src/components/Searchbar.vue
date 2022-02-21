@@ -7,23 +7,22 @@ export default {
     name: 'Searchbar',
     data() {
         return {
-            countries: null,
-            cities: null,
-            cityShow: true,
-            countryShow: true,
-            weatherShow: false,
+            countries: {},
+            cities: {},
+            showCity: true,
+            showCountry: true,
+            showWeather: false,
             fahrenheit: true,
             // dom variables
-            cityName: null,
-            currentTemp: null,
-            maxTemp: null,
-            minTemp: null,
-            tempSymbol: null,
-            weatherImageUrl: null,
-            errorMessage: null,
-            country: null,
-            state: null
-            
+            cityName: "",
+            currentTemp: 0,
+            maxTemp: 0,
+            minTemp: 0,
+            tempSymbol: "",
+            weatherImageUrl: "",
+            errorMessage: "",
+            country: "",
+            state: ""
         }
     },
     
@@ -32,46 +31,46 @@ export default {
         async searchCountry(event, input) {
             
             // hide weather data and search city div
-            this.weatherShow = false;
-            this.cityShow = false; 
-            this.countryShow = true;
+            this.showWeather = false;
+            this.showCity = false; 
+            this.showCountry = true;
 
             // only query database for alpa chars and backspace
-            if(reAlpha.test(event.key) || event.keyCode === 8) {
-                
-                let response = await axios({
-                    method: 'post',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    url: 'http://127.0.0.1:3000/searchcountry',
-                    data: input.value  
-                })
-                
-                .then((response) => {
-           
-                    this.countries = response.data;
-                    return this.countries;
-                });
+            if(!reAlpha.test(event.key) && event.keyCode != 8) {
+
+                return;
             };
-            return;
+
+            let response = await axios({
+                method: 'post',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                url: 'http://127.0.0.1:3000/searchcountry',
+                data: input.value  
+            })
+            
+            this.countries = response.data;
+            return this.countries;   
         },
 
         async searchCity(event, cityInput, countryInput) {
 
             // hide weather data div
-            this.weatherShow = false;
+            this.showWeather = false;
 
             // if search input has no value hide search results
             if(cityInput.value.length < 1) {
-                this.cityShow = false;
+                this.showCity = false;
                 return;
             };
 
             // show city search results div
-            this.cityShow = true;
+            this.showCity = true;
 
             // only query database for alpa chars, backspace, or spacebar
-            if(reAlpha.test(event.key)  || event.keyCode === 8 || event.keyCode === 32) {
-        
+            if(!reAlpha.test(event.key) && event.keyCode != 8 && event.keyCode != 32) {
+
+                return;
+            }
                 let searchData = JSON.stringify({city : cityInput.value, country: countryInput.value});
                 let response = await axios({
                     method: 'post',
@@ -80,27 +79,22 @@ export default {
                     data: searchData
                 })
                 
-                .then((response) => {
+                this.cities = response.data;
+                return this.cities;
             
-                    this.cities = response.data;
-                    return this.cities;
-                });
-            };
-            return;
         },
 
         setCountry(value) {
-            searchCountryTextInput.value = value;
 
+            searchCountryTextInput.value = value;
             // clear search city text input and hide city search results
-            this.cityShow = false;
+            this.showCity = false;
             this.$refs.searchCityInput.value = "";
             
         },
         
         async fetchApi(event, cityData) {
 
-            
             // clear search city text input
             this.$refs.searchCityInput.value = "";
 
@@ -121,7 +115,7 @@ export default {
         displayWeatherData(weatherData, cityData) {
             
             // show weather data div
-            this.weatherShow = true;
+            this.showWeather = true;
 
             // default temp unit in fahrenheit
             this.currentTemp = Math.round(weatherData.current.temp);
@@ -140,6 +134,7 @@ export default {
         convertTemp(cTemp, miTemp, mxTemp) {
             
             switch(this.fahrenheit) {
+
                 // for celcius
                 case true:
                     this.fahrenheit = false;
@@ -148,6 +143,7 @@ export default {
                     this.minTemp = Math.round((miTemp - 32) * .556);
                     this.maxTemp = Math.round((mxTemp - 32) * .556);
                     return;
+
                 // for fahrenheit
                 case false:
                     this.fahrenheit = true;
@@ -162,7 +158,6 @@ export default {
         getCurrentLocation() {
 
             navigator.geolocation.getCurrentPosition((position) => {
-    
                 this.fetchApiCurrentLocation(position);
             });
         },
@@ -181,11 +176,11 @@ export default {
 
             // store location information
             let cityInfo = {
-                            name: weatherInfo.name,
-                            country: weatherInfo.sys.country,
-                            state: null,
-                            lat: weatherInfo.coord.lat,
-                            lon: weatherInfo.coord.lon
+                name: weatherInfo.name,
+                country: weatherInfo.sys.country,
+                state: null,
+                lat: weatherInfo.coord.lat,
+                lon: weatherInfo.coord.lon
             };
 
             // api call for weather info
@@ -217,16 +212,16 @@ export default {
         <div class="searchResultsWrapperMain">
             <div class="searchResultsWrapper">
 
-                <ul v-show="cityShow" ref="cityResults" id=citySearchResults>
-                    <li @click="fetchApi($event, city); this.cityShow = false" v-for="city in cities">
+                <ul v-show="showCity" ref="cityResults" id=citySearchResults>
+                    <li @click="fetchApi($event, city); this.showCity = false" v-for="city in cities">
                         <!-- display state name only in US cities -->
                         <span v-if="city['country'] == 'US'">{{ city['name'] + ", " + city['state']}}</span>
                         <span v-else>{{ city['name'] + ", " + city['country']}}</span>
                     </li>
                 </ul>
 
-                <ul v-show="countryShow" ref="countryResults" id="countrySearchResults">
-                    <li @click="setCountry(country['country']); this.countryShow = false" v-for="country in countries">
+                <ul v-show="showCountry" ref="countryResults" id="countrySearchResults">
+                    <li @click="setCountry(country['country']); this.showCountry = false" v-for="country in countries">
                         {{ country['country'] }}
                     </li>
                 </ul>
@@ -237,7 +232,7 @@ export default {
 
     <p id="errorMessage" style="text-align: center;">{{  errorMessage }}</p>
 
-    <div v-show="weatherShow" class="dataWrapperMain">
+    <div v-show="showWeather" class="dataWrapperMain">
         <div id="dataWrapper">
             <p id="cityName">{{ cityName }} {{ state }} {{ country }}</p>
             <img :src="weatherImageUrl" id="weatherImg">
