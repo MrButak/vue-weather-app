@@ -39,7 +39,7 @@ export default {
             let response = await axios({
                 method: 'post',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                url: 'http://127.0.0.1:3000/searchcountry',
+                url: '/searchcountry',
                 data: input.value  
             })
             
@@ -64,7 +64,7 @@ export default {
                 let response = await axios({
                     method: 'post',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    url: 'http://127.0.0.1:3000/searchcity',
+                    url: '/searchcity',
                     data: searchData
                 })
                 
