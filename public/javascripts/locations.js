@@ -14,7 +14,6 @@ client.connect();
 exports.searchByName = async(cityName, countryName) => {
 
     
-
     const text = 'SELECT * FROM cities WHERE name LIKE ($1) AND country = ($2) LIMIT 30 RETURNING *';
     const values = [cityName + "%", countryName];
 
