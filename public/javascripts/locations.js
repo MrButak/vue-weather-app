@@ -19,7 +19,7 @@ exports.searchByName = async(cityName, countryName) => {
 
     try {
         const res = await client.query(text, values);
-        await client.end();
+        //await client.end();
         return res.rows;
     } 
     catch (error) {
@@ -48,7 +48,7 @@ exports.searchByCountry = async(countryName) => {
 
     try {
         const res = await client.query(text, values);
-        await client.end();
+        //await client.end();
         return res.rows;
     } 
     catch (error) {
