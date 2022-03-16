@@ -3,7 +3,7 @@ const locations = require('../public/javascripts/locations')
 exports.index = (req, res, next) => {
 
     // res.render('index');
-    res.sendFile(path + "../public/dist/index.html");
+    res.sendFile('public/dist/index.html' , { root : __dirname});
 };
 
 exports.searchCity = (req, res, next) => {
