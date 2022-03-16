@@ -14,7 +14,7 @@ client.connect();
 exports.searchByName = async(cityName, countryName) => {
 
     
-    const text = 'SELECT * FROM cities WHERE name LIKE ($1) AND country = ($2) LIMIT 30';
+    const text = 'SELECT * FROM cities WHERE name ILIKE ($1) AND country ILIKE ($2) LIMIT 30';
     const values = [cityName + "%", countryName];
 
     try {
@@ -42,7 +42,7 @@ exports.searchByName = async(cityName, countryName) => {
 // Query DB for countries
 exports.searchByCountry = async(countryName) => {
 
-    const text = 'SELECT DISTINCT country FROM cities WHERE country LIKE ($1) LIMIT 10';
+    const text = 'SELECT DISTINCT country FROM cities WHERE country ILIKE ($1) LIMIT 10';
     const values = [countryName + "%"];
     // const text = 'SELECT DISTINCT country FROM cities WHERE country LIKE ($1) LIMIT 10 RETURNING *';
 
