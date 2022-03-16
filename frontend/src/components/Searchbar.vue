@@ -113,7 +113,7 @@ export default {
             this.country = cityData.country;
             
             // get weather image
-            this.weatherImageUrl = `http://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@2x.png`
+            this.weatherImageUrl = `https://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@2x.png`
         },
         convertTemp(cTemp, miTemp, mxTemp) {
             
@@ -145,7 +145,7 @@ export default {
             
             // js Geolocation Api only provides lat, lon, so this api call gets information located in cityInfo below
             // api call for general info on lat, lon
-            let response = await fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&units=imperial&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+            let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&units=imperial&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
             let weatherInfo = await response.json();
             if(!response.ok) {
                 this.errorMessage = data.message;
@@ -160,7 +160,7 @@ export default {
                 lon: weatherInfo.coord.lon
             };
             // api call for weather info
-            let responseTwo = await fetch(`http://api.openweathermap.org/data/2.5/onecall?lat=${cityInfo.lat}&lon=${cityInfo.lon}&units=imperial&exclude=minutely,hourly&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
+            let responseTwo = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${cityInfo.lat}&lon=${cityInfo.lon}&units=imperial&exclude=minutely,hourly&appid=65388c50a787be295df1ae5b1f2c37ea`, {mode: 'cors'});
             let weatherData = await responseTwo.json();
             if(!responseTwo.ok) {
                 this.errorMessage = data.message;
