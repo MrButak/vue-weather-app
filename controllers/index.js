@@ -1,9 +1,9 @@
 const locations = require('../public/javascripts/locations')
 
-// exports.index = (req, res, next) => {
+exports.index = (req, res, next) => {
 
-//     res.render('index');
-// };
+    res.render('index');
+};
 
 exports.searchCity = (req, res, next) => {
 
