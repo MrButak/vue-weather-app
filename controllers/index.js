@@ -1,11 +1,5 @@
 const locations = require('../public/javascripts/locations')
 
-// exports.index = (req, res, next) => {
-
-//     // res.render('index');
-//     res.sendFile(path.join(__dirname, '/index.html'));
-// };
-
 exports.searchCity = (req, res, next) => {
 
     data = Object.keys(req.body)

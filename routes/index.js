@@ -12,12 +12,10 @@ const allowRequest = app.use(function(req, res, next) {
     next();
 });
 
-// router.get('/', index.index);
-
 // POST route for city search
-router.post('/searchcity', allowRequest, index.searchCity);
+router.post('/searchcity', index.searchCity);
 
 // POST route for country search
-router.post('/searchcountry', allowRequest, index.searchCountry);
+router.post('/searchcountry', index.searchCountry);
 
 module.exports = router;
