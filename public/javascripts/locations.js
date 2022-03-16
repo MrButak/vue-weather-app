@@ -1,8 +1,31 @@
-// const Database = require('better-sqlite3');
+const { Pool, Client } = require('pg')
+config = require('dotenv').config()
+
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
+
+client.connect();
 
 // Query DB for city and country
-exports.searchByName = (cityName, countryName) => {
+exports.searchByName = async(cityName, countryName) => {
 
+    
+
+    const text = 'SELECT * FROM cities WHERE name LIKE ($1) AND country = ($2) LIMIT 30 RETURNING *';
+    const values = [cityName + "%", countryName];
+
+    try {
+        const res = await client.query(text, values);
+        await client.end();
+        return res.rows;
+    } 
+    catch (error) {
+        console.log(error.stack)
+    };
     // let db = new Database('citylist.db', {verbose: console.log});
 
 	// try {
@@ -18,8 +41,19 @@ exports.searchByName = (cityName, countryName) => {
 };
 
 // Query DB for countries
-exports.searchByCountry = (countryName) => {
+exports.searchByCountry = async(countryName) => {
 
+    const text = 'SELECT DISTINCT country FROM cities WHERE country LIKE ($1) LIMIT 10 RETURNING *';
+    const values = [countryName + "%"];
+
+    try {
+        const res = await client.query(text, values);
+        await client.end();
+        return res.rows;
+    } 
+    catch (error) {
+        console.log(error.stack)
+    };
     // let db = new Database('citylist.db', {verbose: console.log});
 
 	// try {
