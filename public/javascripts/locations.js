@@ -7,6 +7,7 @@ const client = new Client({
         rejectUnauthorized: false
     }
 });
+//
 
 client.connect();
 
@@ -17,14 +18,11 @@ exports.searchByName = async(cityName, countryName) => {
     const text = 'SELECT * FROM cities WHERE name ILIKE ($1) AND country ILIKE ($2) LIMIT 30';
     const values = [cityName + "%", countryName];
 
-    try {
-        const res = await client.query(text, values);
-        //await client.end();
-        return res.rows;
-    } 
-    catch (error) {
-        console.log(error.stack)
-    };
+    
+    const res = await client.query(text, values);
+    //await client.end();
+    return res.rows;
+    
     // let db = new Database('citylist.db', {verbose: console.log});
 
 	// try {
@@ -46,14 +44,12 @@ exports.searchByCountry = async(countryName) => {
     const values = [countryName + "%"];
     // const text = 'SELECT DISTINCT country FROM cities WHERE country LIKE ($1) LIMIT 10 RETURNING *';
 
-    try {
-        const res = await client.query(text, values);
-        //await client.end();
-        return res.rows;
-    } 
-    catch (error) {
-        console.log(error.stack)
-    };
+   
+    const res = await client.query(text, values);
+    //await client.end();
+    return res.rows;
+    
+    
     // let db = new Database('citylist.db', {verbose: console.log});
 
 	// try {

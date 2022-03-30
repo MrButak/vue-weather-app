@@ -12,6 +12,7 @@ const allowRequest = app.use(function(req, res, next) {
     next();
 });
 
+
 // POST route for city search
 router.post('/searchcity', index.searchCity);
 
