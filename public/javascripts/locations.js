@@ -33,9 +33,6 @@ exports.searchByCountry = async (countryName) => {
     const text = 'SELECT DISTINCT country FROM cities WHERE country ILIKE ($1) LIMIT 10';
     const values = [countryName + "%"];
 
-    // const text = 'SELECT DISTINCT country FROM cities WHERE country LIKE ($1) LIMIT 10 RETURNING *';
-
-
     const res = await client.query(text, values);
 
     //await client.end();
