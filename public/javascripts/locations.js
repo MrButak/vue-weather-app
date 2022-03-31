@@ -14,7 +14,7 @@ client.connect();
 // Query DB for city and country
 exports.searchByName = async(cityName, countryName) => {
 
-    
+    // console.log
     const text = 'SELECT * FROM cities WHERE name ILIKE ($1) AND country ILIKE ($2) LIMIT 30';
     const values = [cityName + "%", countryName];
 
