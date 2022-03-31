@@ -23,10 +23,7 @@ exports.searchByName = async (cityName, countryName) => {
     
    
     //await client.end();
-    return res.rows;
-    
-    
-    
+    return res.rows; 
 };
 
 // Query DB for countries
