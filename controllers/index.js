@@ -12,7 +12,6 @@ exports.searchCity = async (req, res, next) => {
     catch(err) {
         console.log(err);
     };
-    
 };
 
 exports.searchCountry = async (req, res, next) => {
@@ -27,6 +26,4 @@ exports.searchCountry = async (req, res, next) => {
     catch(err) {
         console.log(err);
     };
-     
 };
-
